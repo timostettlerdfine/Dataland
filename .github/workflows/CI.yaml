@@ -287,23 +287,34 @@ jobs:
         include:
           - testExecutor: "CYPRESS"
             testGroup: 1
-            run: 1
+            runIndex: 1
           - testExecutor: "CYPRESS"
             testGroup: 1
-            run: 2
+            runIndex: 2
           - testExecutor: "CYPRESS"
             testGroup: 1
-            run: 3
+            runIndex: 3
           - testExecutor: "CYPRESS"
             testGroup: 1
-            run: 4
+            runIndex: 4
           - testExecutor: "CYPRESS"
             testGroup: 1
-            run: 5
-          - testExecutor: "E2ETESTS"
-            testGroup: 0
-          - testExecutor: "RESTARTABILITY"
-            testGroup: 100
+            runIndex: 5
+          - testExecutor: "CYPRESS"
+            testGroup: 1
+            runIndex: 6
+          - testExecutor: "CYPRESS"
+            testGroup: 1
+            runIndex: 7
+          - testExecutor: "CYPRESS"
+            testGroup: 1
+            runIndex: 8
+          - testExecutor: "CYPRESS"
+            testGroup: 1
+            runIndex: 9
+          - testExecutor: "CYPRESS"
+            testGroup: 1
+            runIndex: 10
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - uses: ./.github/workflows/downloadImageVersions
@@ -405,19 +416,19 @@ jobs:
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: JaCoCoResultsE2ETest-${{ matrix.testGroup }}
+          name: JaCoCoResultsE2ETest-${{ matrix.runIndex }}
           path: ./*.exec
       - name: Upload lcov Exec Results
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: lcovResults-${{ matrix.testGroup }}
+          name: lcovResults-${{ matrix.runIndex }}
           path: ./*.info
       - name: Upload E2E Test and Cypress Reports
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: e2eTestReports-${{ matrix.testGroup }}
+          name: e2eTestReports-${{ matrix.runIndex }}
           path: |
             ./cypress
             ./coverage
@@ -426,12 +437,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: e2eTestDatabaseDumps-${{ matrix.testGroup }}
+          name: e2eTestDatabaseDumps-${{ matrix.runIndex }}
           path: ./dbdumps/
       - uses: ./.github/workflows/dockerLogs
         if: always()
         with:
-          subfolder: 'e2etests_testgroup_${{ matrix.testGroup }}'
+          subfolder: 'e2etests_testgroup_${{ matrix.runIndex }}'
   sonar:
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
