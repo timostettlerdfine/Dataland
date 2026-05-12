@@ -288,13 +288,13 @@ jobs:
           - testExecutor: "CYPRESS"
             testGroup: 1
           - testExecutor: "CYPRESS"
-            testGroup: 2
+            testGroup: 1
           - testExecutor: "CYPRESS"
-            testGroup: 3
+            testGroup: 1
           - testExecutor: "CYPRESS"
-            testGroup: 4
+            testGroup: 1
           - testExecutor: "CYPRESS"
-            testGroup: 5
+            testGroup: 1
           - testExecutor: "E2ETESTS"
             testGroup: 0
           - testExecutor: "RESTARTABILITY"
