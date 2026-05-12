@@ -287,14 +287,19 @@ jobs:
         include:
           - testExecutor: "CYPRESS"
             testGroup: 1
+            run: 1
           - testExecutor: "CYPRESS"
             testGroup: 1
+            run: 2
           - testExecutor: "CYPRESS"
             testGroup: 1
+            run: 3
           - testExecutor: "CYPRESS"
             testGroup: 1
+            run: 4
           - testExecutor: "CYPRESS"
             testGroup: 1
+            run: 5
           - testExecutor: "E2ETESTS"
             testGroup: 0
           - testExecutor: "RESTARTABILITY"
