@@ -227,6 +227,13 @@ export default defineConfig({
           return filename;
         },
       });
+      on('task', {
+        log(message: string) {
+          console.log(message);
+          return null;
+        },
+      });
+
       config.expose.fakeFixtureDocumentIds = computeFakeFixtureDocumentIds(config.projectRoot);
       return config;
     },
