@@ -120,19 +120,21 @@ describeIf(
         judgeDataPointsWithQaReports(overview);
         finishJudgement(uploadedDataMetaInfo.dataId);
 
-        cy.waitUntil(() =>
-          cy
-            .request({
-              method: 'GET',
-              url: `${apiBaseUrl}/api/metadata/${uploadedDataMetaInfo.dataId}`,
-              headers: { Authorization: `Bearer ${tokens.adminToken}` },
-              failOnStatusCode: false,
-            })
-            .then((resp) => {
-              if (resp.status !== 200) return false;
-              const qaStatus = String(resp.body?.qaStatus ?? '').toLowerCase();
-              return qaStatus === 'accepted';
-            })
+        cy.waitUntil(
+          () =>
+            cy
+              .request({
+                method: 'GET',
+                url: `${apiBaseUrl}/api/metadata/${uploadedDataMetaInfo.dataId}`,
+                headers: { Authorization: `Bearer ${tokens.adminToken}` },
+                failOnStatusCode: false,
+              })
+              .then((resp) => {
+                if (resp.status !== 200) return false;
+                const qaStatus = String(resp.body?.qaStatus ?? '').toLowerCase();
+                return qaStatus === 'accepted';
+              }),
+          { timeout: 60000, interval: 2000, errorMsg: 'qaStatus never reached "accepted" ' }
         );
 
         const euTaxonomyData = getPreparedFixture('lightweight-eu-taxo-financials-dataset', preparedEuTaxonomyFixtures);
@@ -671,25 +673,27 @@ function verifyJudgementDataStoredCorrectly(
 
   const flatOverview = { ...overview.dataPointsWithQaReports, ...overview.dataPointsWithoutQaReports };
 
-  cy.waitUntil(() =>
-    cy
-      .request<{ data: EutaxonomyFinancialsData }>({
-        method: 'GET',
-        url: `${apiBaseUrl}/api/data/eutaxonomy-financials/`,
-        qs: { companyId, reportingPeriod },
-        headers: { Authorization: `Bearer ${judgeToken}` },
-        failOnStatusCode: false,
-      })
-      .then((response) => {
-        if (response.status !== 200) return false;
-        const data = response.body.data;
+  cy.waitUntil(
+    () =>
+      cy
+        .request<{ data: EutaxonomyFinancialsData }>({
+          method: 'GET',
+          url: `${apiBaseUrl}/api/data/eutaxonomy-financials/`,
+          qs: { companyId, reportingPeriod },
+          headers: { Authorization: `Bearer ${judgeToken}` },
+          failOnStatusCode: false,
+        })
+        .then((response) => {
+          if (response.status !== 200) return false;
+          const data = response.body.data;
 
-        return Object.keys(flatOverview).every((key) => {
-          const expected = expectedValuesByType[key];
-          const actual = extractValueForType(key, data);
-          return actual === expected;
-        });
-      })
+          return Object.keys(flatOverview).every((key) => {
+            const expected = expectedValuesByType[key];
+            const actual = extractValueForType(key, data);
+            return actual === expected;
+          });
+        }),
+    { timeout: 60000, interval: 2000, errorMsg: "Judged data points never matched expected values'" }
   );
 }
 
