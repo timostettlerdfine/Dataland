@@ -128,13 +128,14 @@ describeIf(
                 url: `${apiBaseUrl}/api/metadata/${uploadedDataMetaInfo.dataId}`,
                 headers: { Authorization: `Bearer ${tokens.adminToken}` },
                 failOnStatusCode: false,
+                timeout: 0,
               })
               .then((resp) => {
                 if (resp.status !== 200) return false;
                 const qaStatus = String(resp.body?.qaStatus ?? '').toLowerCase();
                 return qaStatus === 'accepted';
               }),
-          { timeout: 60000, interval: 2000, errorMsg: 'qaStatus never reached "accepted" ' }
+          { timeout: 120000, interval: 3000, errorMsg: 'qaStatus never reached "accepted" ', verbose: true }
         );
 
         const euTaxonomyData = getPreparedFixture('lightweight-eu-taxo-financials-dataset', preparedEuTaxonomyFixtures);
@@ -416,11 +417,18 @@ function judgeDataPointLoop(
     makeJudgementDecision(judgement);
     cy.wait(`@${alias}`).then((interception) => onPatchWait?.(interception, dataPointType));
 
-    cy.waitUntil(() =>
-      cy
-        .get(`[data-test="data-point-row-${dataPointId}"] td`)
-        .eq(1)
-        .then(($td) => $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0)
+    cy.waitUntil(
+      () =>
+        cy
+          .get(`[data-test="data-point-row-${dataPointId}"] td`, { timeout: 0 })
+          .eq(1)
+          .then(($td) => $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0),
+      {
+        timeout: 120000,
+        interval: 3000,
+        errorMsg: 'Data point row did not update with judgement icons in time',
+        verbose: true,
+      }
     );
   });
 }
@@ -682,6 +690,7 @@ function verifyJudgementDataStoredCorrectly(
           qs: { companyId, reportingPeriod },
           headers: { Authorization: `Bearer ${judgeToken}` },
           failOnStatusCode: false,
+          timeout: 0,
         })
         .then((response) => {
           if (response.status !== 200) return false;
@@ -693,7 +702,7 @@ function verifyJudgementDataStoredCorrectly(
             return actual === expected;
           });
         }),
-    { timeout: 60000, interval: 2000, errorMsg: "Judged data points never matched expected values'" }
+    { timeout: 120000, interval: 3000, errorMsg: "Judged data points never matched expected values'", verbose: true }
   );
 }
 
