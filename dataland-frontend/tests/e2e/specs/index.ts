@@ -31,12 +31,12 @@ if (runPrepopulation) {
 }
 
 if (testGroupingDisabled || cypressTestGroup === 1) {
-  //require('./landing-page');
-  //require('./swagger-ui');
-  //require('./user-api-key');
-  //require('./framework-view-and-upload-journey');
-  //require('./sfdr');
-  //require('./lksg');
+  require('./landing-page');
+  require('./swagger-ui');
+  require('./user-api-key');
+  require('./framework-view-and-upload-journey');
+  require('./sfdr');
+  require('./lksg');
   require('./company-cockpit');
 }
 
