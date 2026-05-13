@@ -119,7 +119,7 @@ describeIf(
         tryFinishingJudgementBeforeAllDataPointsReviewed();
         judgeDataPointsWithQaReports(overview);
         finishJudgement(uploadedDataMetaInfo.dataId);
-
+        cy.log('Entering first cy.waituntil()');
         cy.waitUntil(
           () =>
             cy
@@ -131,6 +131,7 @@ describeIf(
                 timeout: 0,
               })
               .then((resp) => {
+                cy.log(`Received response with status ${resp.status} and body: ${JSON.stringify(resp.body)}`);
                 if (resp.status !== 200) return false;
                 const qaStatus = String(resp.body?.qaStatus ?? '').toLowerCase();
                 return qaStatus === 'accepted';
@@ -416,13 +417,16 @@ function judgeDataPointLoop(
     cy.intercept('PATCH', `**/qa/dataset-judgements/**/data-points/${dataPointType}**`).as(alias);
     makeJudgementDecision(judgement);
     cy.wait(`@${alias}`).then((interception) => onPatchWait?.(interception, dataPointType));
-
+    cy.log('Entering second cy.waituntil()');
     cy.waitUntil(
       () =>
         cy
           .get(`[data-test="data-point-row-${dataPointId}"] td`, { timeout: 0 })
           .eq(1)
-          .then(($td) => $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0),
+          .then(($td) => {
+            cy.log('in the loop for checking datapoints acceptted or rejected');
+            $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0;
+          }),
       {
         timeout: 120000,
         interval: 3000,
@@ -680,6 +684,7 @@ function verifyJudgementDataStoredCorrectly(
   const expectedValuesByType = buildDatasetExpectationFromQaScenario(scenarios, fixture);
 
   const flatOverview = { ...overview.dataPointsWithQaReports, ...overview.dataPointsWithoutQaReports };
+  cy.log('Entering third cy.waituntil()');
 
   cy.waitUntil(
     () =>
@@ -693,6 +698,7 @@ function verifyJudgementDataStoredCorrectly(
           timeout: 0,
         })
         .then((response) => {
+          cy.log('Got response status ', response.status);
           if (response.status !== 200) return false;
           const data = response.body.data;
 
