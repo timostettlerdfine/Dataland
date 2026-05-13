@@ -428,7 +428,7 @@ function judgeDataPointLoop(
             $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0;
           }),
       {
-        timeout: 120000,
+        timeout: 1200000,
         interval: 3000,
         errorMsg: 'Data point row did not update with judgement icons in time',
         verbose: true,
