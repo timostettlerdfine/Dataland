@@ -427,8 +427,6 @@ function judgeDataPointLoop(
           .get(`[data-test="data-point-row-${dataPointId}"] td`, { timeout: 0 })
           .eq(1)
           .then(($td) => {
-            cy.task('log', 'in the loop for checking datapoints acceptted or rejected');
-            //console.log('in the loop for checking datapoints acceptted or rejected');
             return $td.find('.accepted-check').length > 0 || $td.find('.rejected-check').length > 0;
           }),
       {
