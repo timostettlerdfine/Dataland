@@ -1,1 +1,1 @@
-Do not change the indentation unless explicitly asked!
+See `.github/AGENTS.md` for full project instructions.
