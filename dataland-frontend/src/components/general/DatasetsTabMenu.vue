@@ -67,6 +67,7 @@ const tabs = ref<Array<TabInfo>>([
     route: '/requestoverview-legacy',
     isVisible: false,
   },
+  { id: 'data-model', label: 'DATA MODEL', route: '/datamodel', isVisible: true },
 ]);
 
 const visibleTabs = computed(() => tabs.value.filter((tab) => tab.isVisible || tab.id === currentTabId.value));

@@ -40,6 +40,7 @@ const AdminRequestsOverviewLegacy = (): Promise<RouteComponent> =>
 const ViewTeaserCompanyData = (): Promise<RouteComponent> => import('@/components/pages/ViewTeaserCompanyData.vue');
 const ChooseFrameworkForDataUpload = (): Promise<RouteComponent> =>
   import('@/components/pages/ChooseFrameworkForDataUpload.vue');
+const DataModelPage = (): Promise<RouteComponent> => import('@/components/pages/DataModelPage.vue');
 import PlatformRedirect from '@/components/resources/landingPage/PlatformRedirect.vue';
 
 const routes = [
@@ -271,6 +272,15 @@ const routes = [
     component: SharedPortfolioOverview,
     meta: {
       initialTabId: 'shared-portfolios',
+      requiresAuthentication: true,
+    },
+  },
+  {
+    path: '/datamodel',
+    name: 'Data Model',
+    component: DataModelPage,
+    meta: {
+      initialTabId: 'data-model',
       requiresAuthentication: true,
     },
   },
