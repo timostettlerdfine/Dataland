@@ -9,13 +9,32 @@ export class UploadReports extends UploadDocuments {
 
   fillAllFormsOfReportsSelectedForUpload(expectedNumberOfReportsToUpload: number = 1): void {
     this.validateNumberOfReportsSelectedForUpload(expectedNumberOfReportsToUpload);
-    cy.get(`${this.uploadReportsSelector} [data-test="report-to-upload-form"]`).each((element) => {
+    cy.get(`${this.uploadReportsSelector} [data-test="report-to-upload-form"]`).each((element, index) => {
+      cy.task('log', `[UploadReports] fillAllForms: starting report form index ${index}`);
       cy.wrap(element)
         .find(`[data-test="publicationDate"] button`)
+        .then(($btns) => cy.task('log', `[UploadReports] p-datepicker-dropdown buttons found: ${$btns.length}`))
+        .should('have.length', 1)
         .should('have.class', 'p-datepicker-dropdown')
         .click();
-      cy.get('.p-datepicker-header').find('button[aria-label="Previous Month"]').click();
-      cy.get('.p-datepicker-day-view').find(`span:contains("12")`).click();
+      cy.get('.p-datepicker').then(($dp) =>
+        cy.task('log', `[UploadReports] open .p-datepicker overlays after open click: ${$dp.length}`)
+      );
+      cy.get('.p-datepicker-header')
+        .then(($headers) => cy.task('log', `[UploadReports] .p-datepicker-header elements found: ${$headers.length}`))
+        .find('button[aria-label="Previous Month"]')
+        .then(($btns) => cy.task('log', `[UploadReports] Previous Month buttons found: ${$btns.length}`))
+        .should('have.length', 1)
+        .click();
+      cy.get('.p-datepicker-day-view')
+        .then(($views) => cy.task('log', `[UploadReports] .p-datepicker-day-view elements found: ${$views.length}`))
+        .should('have.length', 1)
+        .find(`span:contains("12")`)
+        .then(($spans) => cy.task('log', `[UploadReports] span:contains("12") elements found: ${$spans.length}`))
+        .should('have.length', 1)
+        .click();
+      cy.get('.p-datepicker').should('not.exist');
+      cy.task('log', `[UploadReports] fillAllForms: finished report form index ${index}`);
     });
   }
 
