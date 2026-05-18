@@ -73,18 +73,20 @@ If deviations occurred, present them and confirm with the user before continuing
 
 ### Phase 4 — Test
 
-**Goal**: Create and run tests for the implementation.
+**Goal**: Assess coverage, then create/amend tests and run them.
 
 **Invoke the test-engineer subagent** with:
 - The list of changed production files from Phase 3
 - The test plan section from the Implementation Plan
 
-The test engineer will:
-1. Write or update test files
-2. Run the relevant tests
-3. Report results (pass/fail, any bugs found)
+The test engineer will first produce a **Coverage Assessment**:
+- For each changed production file: does a test file already exist?
+- For existing test files: which test cases cover the changed code, and which are now stale/missing?
+- Verdict per file: `NEW` (no test file exists), `AMEND` (test file exists but needs updates), or `COVERED` (existing tests are sufficient)
 
-Produce: **Test Report**
+Present the Coverage Assessment. Then proceed to create/amend/run as needed.
+
+Produce: **Test Report** (coverage assessment + pass/fail results)
 
 If tests reveal a production bug, loop back to Phase 3 with a targeted fix. Do **not** skip or suppress failing tests.
 

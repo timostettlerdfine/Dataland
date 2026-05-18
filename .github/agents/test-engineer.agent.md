@@ -28,16 +28,36 @@ You are a test engineer for the Dataland monorepo. You create and run tests for 
 
 ## Procedure
 
-1. Read the changed files provided in the input to understand what was implemented.
-2. For each changed production file, identify the corresponding test file (create if missing).
-3. Write test cases covering:
+### Step 1 — Coverage Assessment (always first)
+
+For each changed production file:
+1. Check whether a corresponding test file exists.
+2. If it exists, read it and identify which test cases cover the changed code.
+3. Classify each file as:
+   - `NEW` — no test file exists; one must be created
+   - `AMEND` — test file exists but is missing coverage for the changes
+   - `COVERED` — existing tests already cover the changed behaviour
+
+Report the assessment before writing any tests.
+
+### Step 2 — Create / Amend Tests
+
+For each `NEW` or `AMEND` file:
+1. Follow existing test patterns in the same module (read a nearby `*Test.kt` or `*.cy.ts` first).
+2. Write test cases covering:
    - Happy path / expected behavior
    - Edge cases (null inputs, empty collections, boundary values)
    - Error scenarios (invalid input, service failures)
-4. Follow existing test patterns in the same module (read existing `*Test.kt` or `*.cy.ts` files first).
-5. Run the tests: `./gradlew :<module>:test` or `npm run testcomponent`.
-6. If tests fail, diagnose and fix the test (not the production code, unless there is a genuine bug — which must be flagged).
-7. Report: test files created/modified, test results (pass/fail count), and any production bugs found.
+
+### Step 3 — Run Tests
+
+Run the tests: `./gradlew :<module>:test` or `npm run testcomponent`.
+
+If tests fail, diagnose and fix the test (not the production code, unless there is a genuine bug — which must be flagged).
+
+### Step 4 — Report
+
+Return: coverage assessment table + test files created/modified + pass/fail count + any production bugs found.
 
 ## Test Quality Checklist
 
