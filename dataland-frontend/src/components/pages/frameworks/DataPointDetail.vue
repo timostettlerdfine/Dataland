@@ -107,6 +107,8 @@ watch(
 <style scoped>
 .data-point-detail {
   padding: 1rem;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .detail-rows {
@@ -131,6 +133,8 @@ watch(
 
 .detail-value {
   flex: 1;
+  text-align: left;
+  word-break: break-word;
 }
 
 .used-by-list {

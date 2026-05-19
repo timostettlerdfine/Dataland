@@ -12,6 +12,7 @@
       v-model:selectionKeys="selectedKeys"
       v-model:expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
+      :pt="{ nodeLabel: { style: 'display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' } }"
       data-test="schema-tree"
     />
     <Message v-else-if="parseError" severity="error" data-test="schema-parse-error">
@@ -162,6 +163,7 @@ function onNodeSelect(node: TreeNode): void {
 <style scoped>
 .framework-schema-tree {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
 }
 

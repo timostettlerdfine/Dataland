@@ -1,7 +1,5 @@
 <template>
   <TheContent>
-    <h1>Frameworks</h1>
-
     <ProgressSpinner v-if="loading" data-test="frameworks-loading" />
     <Message v-else-if="error" severity="error" data-test="frameworks-error">
       {{ error }}
@@ -132,10 +130,12 @@ onMounted(async () => {
   display: flex;
   gap: 1.5rem;
   min-height: 400px;
+  overflow: hidden;
 }
 
 .frameworks-content {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -148,5 +148,6 @@ onMounted(async () => {
   display: flex;
   gap: 1.5rem;
   flex: 1;
+  min-width: 0;
 }
 </style>
