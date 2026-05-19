@@ -2,7 +2,7 @@
 description: "Explore the Dataland codebase to understand a specific area, module, or feature. Returns an exploration report: relevant modules, key files, architecture summary, and constraints. Use before planning any change."
 argument-hint: "Area or feature to explore, e.g. 'QA service approval flow' or 'how documents are stored'"
 agent: agent
-tools: [read, search]
+tools: [read, search, edit]
 ---
 
 Explore the Dataland codebase to produce a structured **Exploration Report** for the following topic:
