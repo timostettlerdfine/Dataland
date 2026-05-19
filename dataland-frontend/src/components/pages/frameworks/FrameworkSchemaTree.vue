@@ -56,6 +56,14 @@ function isLeafNode(value: unknown): value is SchemaLeaf {
   return typeof value === 'object' && value !== null && 'id' in value && 'ref' in value;
 }
 
+/** Converts a camelCase or snake_case key into a human-readable label. */
+function humanizeKey(key: string): string {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (s) => s.toUpperCase())
+    .trim();
+}
+
 /** Recursively builds PrimeVue TreeNode array from the parsed schema object. */
 function buildTreeNodes(obj: Record<string, unknown>, parentKey: string = ''): TreeNode[] {
   const nodes: TreeNode[] = [];
@@ -71,7 +79,7 @@ function buildTreeNodes(obj: Record<string, unknown>, parentKey: string = ''): T
     } else if (typeof value === 'object' && value !== null) {
       nodes.push({
         key: nodeKey,
-        label: key,
+        label: humanizeKey(key),
         data: { isLeaf: false },
         icon: 'pi pi-folder',
         children: buildTreeNodes(value as Record<string, unknown>, nodeKey),
@@ -104,7 +112,7 @@ function collectParentKeys(nodes: TreeNode[]): Record<string, boolean> {
   const keys: Record<string, boolean> = {};
   for (const node of nodes) {
     if (node.children && node.children.length > 0) {
-      keys[node.key as string] = true;
+      keys[node.key] = true;
       Object.assign(keys, collectParentKeys(node.children));
     }
   }
@@ -162,7 +170,7 @@ function onNodeSelect(node: TreeNode): void {
 
 <style scoped>
 .framework-schema-tree {
-  flex: 1;
+  flex: 0 0 280px;
   min-width: 0;
   overflow-y: auto;
 }

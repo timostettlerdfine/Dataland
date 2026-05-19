@@ -35,6 +35,7 @@
             <DataPointDetail
               :dataPointTypeId="selectedDataPointId"
               :getKeycloakPromise="getKeycloakPromise"
+              :frameworks="frameworks"
             />
           </div>
         </template>

@@ -40,7 +40,7 @@ describe('FrameworkSchemaTree', () => {
 
     cy.get('[data-test="schema-tree"]').should('exist');
     // Folder node for top-level group
-    cy.get('[data-test="schema-tree"]').should('contain.text', 'environmentalObjectives');
+    cy.get('[data-test="schema-tree"]').should('contain.text', 'Environmental Objectives');
     cy.get('[data-test="schema-tree"]').should('contain.text', 'socialObjectives');
   });
 
@@ -52,7 +52,7 @@ describe('FrameworkSchemaTree', () => {
     });
 
     // Expand the environmentalObjectives folder to reveal child nodes
-    cy.contains('.p-tree-node-content', 'environmentalObjectives').find('button').click();
+    cy.contains('.p-tree-node-content', 'Environmental Objectives').find('button').click();
 
     // climateChangeAdaptation has aliasExport, so that name is displayed
     cy.get('[data-test="schema-tree"]').should('contain.text', 'Climate Adaptation');
@@ -67,7 +67,7 @@ describe('FrameworkSchemaTree', () => {
       props: { schema: schemaWithNamedNode },
     });
 
-    cy.contains('.p-tree-node-content', 'group').find('button').click();
+    cy.contains('.p-tree-node-content', 'Group').find('button').click();
 
     cy.get('[data-test="schema-tree"]').should('contain.text', 'Human Readable Name');
     cy.get('[data-test="schema-tree"]').should('not.contain.text', 'Alias Label');
@@ -94,7 +94,7 @@ describe('FrameworkSchemaTree', () => {
     cy.get('[data-test="schema-search-input"]').type('social');
 
     cy.get('[data-test="schema-tree"]').should('contain.text', 'socialObjectives');
-    cy.get('[data-test="schema-tree"]').should('not.contain.text', 'environmentalObjectives');
+    cy.get('[data-test="schema-tree"]').should('not.contain.text', 'Environmental Objectives');
   });
 
   it('restores all nodes when search text is cleared', () => {
@@ -105,10 +105,10 @@ describe('FrameworkSchemaTree', () => {
     });
 
     cy.get('[data-test="schema-search-input"]').type('social');
-    cy.get('[data-test="schema-tree"]').should('not.contain.text', 'environmentalObjectives');
+    cy.get('[data-test="schema-tree"]').should('not.contain.text', 'Environmental Objectives');
 
     cy.get('[data-test="schema-search-input"]').clear();
-    cy.get('[data-test="schema-tree"]').should('contain.text', 'environmentalObjectives');
+    cy.get('[data-test="schema-tree"]').should('contain.text', 'Environmental Objectives');
     cy.get('[data-test="schema-tree"]').should('contain.text', 'socialObjectives');
   });
 
@@ -125,7 +125,7 @@ describe('FrameworkSchemaTree', () => {
     });
 
     // Expand environmentalObjectives folder to reveal leaf nodes
-    cy.contains('.p-tree-node-content', 'environmentalObjectives').find('button').click();
+    cy.contains('.p-tree-node-content', 'Environmental Objectives').find('button').click();
 
     // Click on the leaf node label (not the toggle button) to trigger node-select
     cy.contains('.p-tree-node-content', 'climateChangeMitigation')
@@ -172,7 +172,7 @@ describe('FrameworkSchemaTree', () => {
 
     cy.get('[data-test="schema-tree"]').should('exist');
     // Folder node for top-level group
-    cy.get('[data-test="schema-tree"]').should('contain.text', 'environmentalObjectives');
+    cy.get('[data-test="schema-tree"]').should('contain.text', 'Environmental Objectives');
     cy.get('[data-test="schema-tree"]').should('contain.text', 'socialObjectives');
   });
 
@@ -184,7 +184,7 @@ describe('FrameworkSchemaTree', () => {
     });
 
     // Expand the environmentalObjectives folder to reveal child nodes
-    cy.contains('.p-tree-node-content', 'environmentalObjectives').find('button').click();
+    cy.contains('.p-tree-node-content', 'Environmental Objectives').find('button').click();
 
     // climateChangeAdaptation has aliasExport, so that name is displayed
     cy.get('[data-test="schema-tree"]').should('contain.text', 'Climate Adaptation');
@@ -205,7 +205,7 @@ describe('FrameworkSchemaTree', () => {
     });
 
     // Expand environmentalObjectives folder to reveal leaf nodes
-    cy.contains('.p-tree-node-content', 'environmentalObjectives').find('button').click();
+    cy.contains('.p-tree-node-content', 'Environmental Objectives').find('button').click();
 
     // Click on the leaf node label (not the toggle button) to trigger node-select
     cy.contains('.p-tree-node-content', 'climateChangeMitigation')

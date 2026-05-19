@@ -1,6 +1,7 @@
 import DataPointDetail from '@/components/pages/frameworks/DataPointDetail.vue';
 import { minimalKeycloakMock } from '@ct/testUtils/Keycloak';
 import type Keycloak from 'keycloak-js';
+import type { SimpleFrameworkSpecification } from '@clients/specificationservice';
 
 const mockDataPointSpec = {
   dataPointType: { id: 'dp-climate', ref: '/specifications/data-point-types/dp-climate' },
@@ -20,6 +21,11 @@ const mockBaseTypeSpec = {
   businessDefinition: 'A true/false value.',
   usedBy: [],
 };
+
+const mockFrameworks: SimpleFrameworkSpecification[] = [
+  { framework: { id: 'euTaxonomy', ref: '/specifications/frameworks/euTaxonomy' }, name: 'EU Taxonomy' },
+  { framework: { id: 'sfdr', ref: '/specifications/frameworks/sfdr' }, name: 'SFDR' },
+];
 
 const keycloak = minimalKeycloakMock({});
 const getKeycloakPromise = (): Promise<Keycloak> => Promise.resolve(keycloak);
@@ -70,6 +76,7 @@ describe('DataPointDetail', () => {
       props: {
         dataPointTypeId: 'dp-climate',
         getKeycloakPromise,
+        frameworks: mockFrameworks,
       },
     });
 
@@ -86,12 +93,12 @@ describe('DataPointDetail', () => {
     cy.get('[data-test="data-point-detail"]').should('contain.text', 'Must be true or false');
     cy.get('[data-test="data-point-detail"]').should('contain.text', 'Cannot be null');
 
-    // Base type section
-    cy.get('[data-test="data-point-detail"]').should('contain.text', 'boolean');
+    // Base type row shows name from baseTypeSpec
+    cy.get('[data-test="detail-base-type"]').should('contain.text', 'Boolean');
 
-    // Used-by framework links
-    cy.get('[data-test="data-point-detail"]').find('a[href*="euTaxonomy"]').should('exist');
-    cy.get('[data-test="data-point-detail"]').find('a[href*="sfdr"]').should('exist');
+    // Used-by framework links display human-readable names
+    cy.get('[data-test="data-point-detail"]').find('a[href*="euTaxonomy"]').should('contain.text', 'EU Taxonomy');
+    cy.get('[data-test="data-point-detail"]').find('a[href*="sfdr"]').should('contain.text', 'SFDR');
   });
 
   it('shows labeled ID, NAME and DEFINITION rows with correct values', () => {
@@ -174,6 +181,46 @@ describe('DataPointDetail', () => {
     cy.wait('@getDataPointFail');
     cy.get('[data-test="data-point-error"]').should('exist');
     cy.get('[data-test="data-point-loading"]').should('not.exist');
+  });
+
+  it('shows short class name in Validated By row', () => {
+    const specWithValidatedBy = {
+      ...mockBaseTypeSpec,
+      validatedBy: 'org.dataland.datalandbackend.model.datapoints.BooleanDataPoint',
+    };
+    cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: specWithValidatedBy }).as(
+      'getBaseType'
+    );
+
+    // @ts-ignore
+    cy.mountWithPlugins(DataPointDetail, {
+      keycloak,
+      props: { dataPointTypeId: 'dp-climate', getKeycloakPromise },
+    });
+
+    cy.wait('@getDataPoint');
+    cy.wait('@getBaseType');
+
+    cy.get('[data-test="base-type-details"]').should('contain.text', 'BooleanDataPoint');
+    cy.get('[data-test="base-type-details"]').should('not.contain.text', 'org.dataland');
+  });
+
+  it('falls back to framework id in used-by links when frameworks prop is absent', () => {
+    cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: mockBaseTypeSpec }).as('getBaseType');
+
+    // @ts-ignore
+    cy.mountWithPlugins(DataPointDetail, {
+      keycloak,
+      props: { dataPointTypeId: 'dp-climate', getKeycloakPromise },
+    });
+
+    cy.wait('@getDataPoint');
+    cy.wait('@getBaseType');
+
+    cy.get('[data-test="data-point-detail"]').find('a[href*="euTaxonomy"]').should('contain.text', 'euTaxonomy');
+    cy.get('[data-test="data-point-detail"]').find('a[href*="sfdr"]').should('contain.text', 'sfdr');
   });
 
   it('updates the displayed data point when dataPointTypeId prop changes', () => {

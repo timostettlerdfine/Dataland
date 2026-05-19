@@ -6,7 +6,7 @@
     </Message>
     <div v-else-if="dataPointSpec" class="detail-rows">
       <div class="detail-row">
-        <span class="detail-label">ID</span>
+        <span class="detail-label">Technical ID</span>
         <span class="detail-value" data-test="detail-id">{{ dataPointSpec.dataPointType.id }}</span>
       </div>
       <div class="detail-row">
@@ -19,13 +19,13 @@
       </div>
       <div class="detail-row">
         <span class="detail-label">BASE TYPE</span>
-        <span class="detail-value" data-test="detail-base-type">{{ dataPointSpec.dataPointBaseType.id }}</span>
+        <span class="detail-value" data-test="detail-base-type">{{ baseTypeSpec?.name ?? dataPointSpec.dataPointBaseType.id }}</span>
       </div>
       <div v-if="dataPointSpec.usedBy.length > 0" class="detail-row">
         <span class="detail-label">USED BY</span>
         <ul class="detail-value used-by-list">
           <li v-for="fw in dataPointSpec.usedBy" :key="fw.id">
-            <router-link :to="{ path: `/frameworks/${fw.id}` }">{{ fw.id }}</router-link>
+            <router-link :to="{ path: `/frameworks/${fw.id}` }">{{ frameworkNameMap.get(fw.id) ?? fw.id }}</router-link>
           </li>
         </ul>
       </div>
@@ -48,7 +48,7 @@
         </div>
         <div v-if="baseTypeSpec.validatedBy" class="detail-row">
           <span class="detail-label">VALIDATED BY</span>
-          <span class="detail-value">{{ baseTypeSpec.validatedBy }}</span>
+          <span class="detail-value">{{ shortClassName(baseTypeSpec.validatedBy) }}</span>
         </div>
       </div>
     </div>
@@ -59,15 +59,33 @@
 <script setup lang="ts">
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ApiClientProvider } from '@/services/ApiClients';
-import type { DataPointTypeSpecification, DataPointBaseTypeSpecification } from '@clients/specificationservice';
+import type {
+  DataPointTypeSpecification,
+  DataPointBaseTypeSpecification,
+  SimpleFrameworkSpecification,
+} from '@clients/specificationservice';
 import type Keycloak from 'keycloak-js';
 
 const props = defineProps<{
   dataPointTypeId: string | null;
   getKeycloakPromise: () => Promise<Keycloak>;
+  frameworks?: SimpleFrameworkSpecification[];
 }>();
+
+const frameworkNameMap = computed<Map<string, string>>(() => {
+  const map = new Map<string, string>();
+  for (const fw of props.frameworks ?? []) {
+    map.set(fw.framework.id, fw.name);
+  }
+  return map;
+});
+
+/** Returns the last segment of a fully-qualified class name. */
+function shortClassName(fullName: string): string {
+  return fullName.split('.').at(-1) ?? fullName;
+}
 
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -106,6 +124,7 @@ watch(
 
 <style scoped>
 .data-point-detail {
+  flex: 1;
   padding: 1rem;
   min-width: 0;
   overflow-x: hidden;
