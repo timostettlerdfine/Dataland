@@ -83,18 +83,13 @@ To reduce token costs and enable clean phase separation, the orchestrator workfl
 
 These agents are **not invoked directly by users**, but run internally when using `/feature-development-orchestrator`:
 
-| Agent | Model | Reads | Writes | Purpose |
-|---|---|---|---|---|
-| Planner | `claude-opus-4-6` | Exploration (if exists) | `02-plan.md` | Create detailed plan with test strategy |
-| Plan Reviewer | `claude-opus-4-6` | `02-plan.md` | `03-review.md` | Validate plan completeness and risk |
-| Implementer | `claude-sonnet-4-6` | `02-plan.md`, `03-review.md` | `04-implementation.md` | Execute approved plan |
-| Test Engineer | `claude-sonnet-4-6` | `02-plan.md`, `04-implementation.md` | `05-tests.md` | Implement test strategy, assess coverage |
-| Commit Agent | `claude-haiku-4-5` | `05-tests.md` | `06-commit.md` | Draft message and stage files |
-
-**Model assignment rationale:**
-- **Opus** for planning and review: Complex reasoning about architecture and edge cases
-- **Sonnet** for implementation and testing: Good code quality, faster execution, reasonable cost balance
-- **Haiku** for commits: Straightforward message formatting, minimal reasoning needed
+| Agent | Reads | Writes | Purpose |
+|---|---|---|---|
+| Planner | Exploration (if exists) | `02-plan.md` | Create detailed plan with test strategy |
+| Plan Reviewer | `02-plan.md` | `03-review.md` | Validate plan completeness and risk |
+| Implementer | `02-plan.md`, `03-review.md` | `04-implementation.md` | Execute approved plan |
+| Test Engineer | `02-plan.md`, `04-implementation.md` | `05-tests.md` | Implement test strategy, assess coverage |
+| Commit Agent | `05-tests.md` | `06-commit.md` | Draft message and stage files |
 
 ### Skills (User-Invocable or Used by Orchestrator)
 
