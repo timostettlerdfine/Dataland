@@ -40,13 +40,13 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 
 **Goal**: Produce a precise, step-by-step implementation plan.
 
-**Invoke the planner subagent** (`model: "claude-opus-4-6 (copilot)"`) with:
+**Invoke the planner subagent** with:
 - The original change request
 - The Exploration Report from `.github/artifacts/<slug>/01-exploration.md`
 
 Produce: **Implementation Plan** (modules, file list, ordered steps, test plan, risks)
 
-**Invoke the plan-reviewer subagent** (`model: "claude-opus-4-6 (copilot)"`) with:
+**Invoke the plan-reviewer subagent** with:
 - The original change request
 - The Implementation Plan produced by the Planner
 
@@ -62,7 +62,7 @@ Do **not** proceed to Phase 3 without explicit approval.
 
 **Goal**: Execute the approved plan.
 
-**Invoke the implementer subagent** (`model: "claude-sonnet-4-6 (copilot)"`) with the approved Implementation Plan.
+**Invoke the implementer subagent** with the approved Implementation Plan.
 
 The implementer will:
 1. Apply each step
@@ -79,7 +79,7 @@ If deviations occurred, present them and confirm with the user before continuing
 
 **Goal**: Assess coverage, then create/amend tests and run them.
 
-**Invoke the test-engineer subagent** (`model: "claude-sonnet-4-6 (copilot)"`) with:
+**Invoke the test-engineer subagent** with:
 - The list of changed production files from Phase 3
 - The test plan section from the Implementation Plan
 
@@ -100,7 +100,7 @@ If tests reveal a production bug, loop back to Phase 3 with a targeted fix. Do *
 
 **Goal**: Stage and commit the changes with a well-formed commit message.
 
-**Invoke the commit-agent subagent** (`model: "claude-haiku-4-5 (copilot)"`).
+**Invoke the commit-agent subagent**.
 
 The commit agent will:
 1. Summarize all changed files
