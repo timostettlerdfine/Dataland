@@ -26,12 +26,13 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 
 **Goal**: Understand the relevant parts of the codebase before planning anything.
 
-**First, check whether `.github/artifacts/<slug>/01-exploration.md` already exists.**
+**First, check whether any exploration report already exists — in order of preference:**
 
-- **If it exists**: Read it, display a summary, and tell the user: *"Found an existing exploration report at `.github/artifacts/<slug>/01-exploration.md`. Using it for planning. Run `/explore-codebase` again if you want to refresh it."* Skip to Phase 2.
-- **If it does not exist**: Check for a general exploration report at `.github/artifacts/general-codebase-explore/01-exploration.md`.
-  - **If the general report exists**: Read it, display a summary, and tell the user: *"No feature-specific exploration found. Using the general codebase exploration at `.github/artifacts/general-codebase-explore/01-exploration.md`. Run `/explore-codebase <topic>` to create a more targeted report."* Skip to Phase 2.
-  - **If neither exists**: Invoke `/explore-codebase` with the change description as input. The prompt will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
+1. **Feature-specific report** at `.github/artifacts/<slug>/01-exploration.md` — if found, read it, display a summary, and tell the user: *"Found an existing exploration report. Using it for planning. Run `/explore-codebase` again if you want to refresh it."* Skip to Phase 2.
+2. **General report** at `.github/artifacts/general-codebase-explore/01-exploration.md` — if found, read it, display a summary, and tell the user: *"No feature-specific exploration found. Using the general codebase exploration. Run `/explore-codebase <topic>` to create a more targeted report."* Skip to Phase 2.
+3. **No report found** — invoke the Codebase Explorer subagent with the change description as input. The subagent will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
+
+**If any markdown report is found (cases 1 or 2), no further exploration is performed — proceed directly to Phase 2.**
 
 ---
 
@@ -39,13 +40,19 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 
 **Goal**: Produce a precise, step-by-step implementation plan.
 
-**Invoke the planner subagent** with:
+**Invoke the planner subagent** (`model: "claude-opus-4-6 (copilot)"`) with:
 - The original change request
 - The Exploration Report from `.github/artifacts/<slug>/01-exploration.md`
 
 Produce: **Implementation Plan** (modules, file list, ordered steps, test plan, risks)
 
-Pause and show the full Implementation Plan. Ask the user: *"Do you approve this plan? Any changes before implementation starts?"*
+**Invoke the plan-reviewer subagent** (`model: "claude-opus-4-6 (copilot)"`) with:
+- The original change request
+- The Implementation Plan produced by the Planner
+
+The reviewer will validate the plan for completeness, flag missing edge cases, constraint violations, and risks. It produces a **Review Report** written to `.github/artifacts/<slug>/03-review.md`.
+
+Pause and show the full Implementation Plan together with the Review Report. Ask the user: *"Do you approve this plan? Any changes before implementation starts?"*
 
 Do **not** proceed to Phase 3 without explicit approval.
 
@@ -55,7 +62,7 @@ Do **not** proceed to Phase 3 without explicit approval.
 
 **Goal**: Execute the approved plan.
 
-**Invoke the implementer subagent** with the approved Implementation Plan.
+**Invoke the implementer subagent** (`model: "claude-sonnet-4-6 (copilot)"`) with the approved Implementation Plan.
 
 The implementer will:
 1. Apply each step
@@ -72,7 +79,7 @@ If deviations occurred, present them and confirm with the user before continuing
 
 **Goal**: Assess coverage, then create/amend tests and run them.
 
-**Invoke the test-engineer subagent** with:
+**Invoke the test-engineer subagent** (`model: "claude-sonnet-4-6 (copilot)"`) with:
 - The list of changed production files from Phase 3
 - The test plan section from the Implementation Plan
 
@@ -93,7 +100,7 @@ If tests reveal a production bug, loop back to Phase 3 with a targeted fix. Do *
 
 **Goal**: Stage and commit the changes with a well-formed commit message.
 
-**Invoke the commit-agent subagent**.
+**Invoke the commit-agent subagent** (`model: "claude-haiku-4-5 (copilot)"`).
 
 The commit agent will:
 1. Summarize all changed files
