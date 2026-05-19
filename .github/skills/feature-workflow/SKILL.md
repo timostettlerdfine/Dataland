@@ -29,7 +29,9 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 **First, check whether `.github/artifacts/<slug>/01-exploration.md` already exists.**
 
 - **If it exists**: Read it, display a summary, and tell the user: *"Found an existing exploration report at `.github/artifacts/<slug>/01-exploration.md`. Using it for planning. Run `/explore-codebase` again if you want to refresh it."* Skip to Phase 2.
-- **If it does not exist**: Invoke `/explore-codebase` with the change description as input. The prompt will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
+- **If it does not exist**: Check for a general exploration report at `.github/artifacts/general-codebase-explore/01-exploration.md`.
+  - **If the general report exists**: Read it, display a summary, and tell the user: *"No feature-specific exploration found. Using the general codebase exploration at `.github/artifacts/general-codebase-explore/01-exploration.md`. Run `/explore-codebase <topic>` to create a more targeted report."* Skip to Phase 2.
+  - **If neither exists**: Invoke `/explore-codebase` with the change description as input. The prompt will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
 
 ---
 
