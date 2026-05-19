@@ -24,28 +24,84 @@ Dataland is a multi-module monorepo providing a platform for ESG/sustainability 
 
 ## Available Workflow Automation
 
-A full development workflow is available via the `/feature-workflow` skill and the following prompts:
+### Recommended: Multi-Agent Workflow (Modular Approach)
 
-| Command | Purpose |
-|---|---|
-| `/feature-workflow` | Full end-to-end: explore → plan → implement → test → commit → local refresh |
-| `/explore-codebase` | Understand a specific area without making changes |
-| `/plan-changes` | Produce a structured implementation plan |
-| `/create-tests` | Write and run tests for implemented code |
-| `/commit` | Draft and create a commit (with approval gate) |
-| `/local-stack-refresh` | Rebuild affected Docker images and restart the local stack |
+Use the `/feature-workflow` skill for end-to-end feature development with approval gates:
 
-## Subagents
+```
+/feature-workflow Add rate limiting to API key manager
+```
 
-The following subagents are available for orchestration (not user-facing directly):
+This orchestrates 6 phases with internal agent coordination:
+1. **Explore** → Identify affected modules and files
+2. **Plan** (approval gate) → Create implementation plan + test strategy  
+3. **Review** → Validate plan for completeness and risks
+4. **Implement** → Execute approved changes with linting
+5. **Test** → Assess coverage, create/amend tests, run them
+6. **Commit** (approval gate) → Draft message and create commit
+7. **Stack Refresh** (approval gate) → Restart local Docker stack
 
-| Agent file | Role |
-|---|---|
-| `.github/agents/codebase-explorer.agent.md` | Read-only codebase analysis |
-| `.github/agents/planner.agent.md` | Implementation planning (no code) |
-| `.github/agents/implementer.agent.md` | Code execution per approved plan |
-| `.github/agents/test-engineer.agent.md` | Test creation and execution |
-| `.github/agents/commit-agent.agent.md` | Commit preparation with approval gate |
+**Cost**: Multi-agent approach with model specialization (Opus for planning/review, Sonnet for implementation/testing, Haiku for commit)
+
+**Approval gates** at Plan (Phase 2), Commit (Phase 6), and Stack Refresh (Phase 7)
+
+### Alternative: Single-Phase Entry Points
+
+Use these to skip earlier phases or run individual steps:
+
+| Command | Purpose | Reads | Writes |
+|---|---|---|---|
+| `/explore-codebase <query>` | Explore only (read-only) | codebase | `01-exploration.md` |
+| `/plan-changes <description>` | Jump to planning (skips explore) | `01-exploration.md` | `02-plan.md` |
+| `/create-tests <file-list>` | Jump to testing (skips plan/implement) | `02-plan.md`, `04-implementation.md` | `05-tests.md` |
+| `/commit` | Jump to commit (skips all earlier) | `05-tests.md` | `06-commit.md` |
+| `/local-stack-refresh` | Refresh stack only | codebase | (none) |
+
+## Internal Architecture
+
+### Artifact-Based Handoff Pattern
+
+To reduce token costs and enable clean phase separation, the orchestrator workflow uses **markdown artifacts** instead of context inheritance:
+
+```
+.github/artifacts/<feature-slug>/
+├── 01-exploration.md      (what exists in codebase)
+├── 02-plan.md              (implementation plan + test strategy)
+├── 03-review.md            (plan validation result)
+├── 04-implementation.md    (what was implemented)
+├── 05-tests.md             (test execution results)
+└── 06-commit.md            (commit hash + message)
+```
+
+**Why this pattern?**
+- Each phase starts fresh with only relevant artifacts (better token efficiency)
+- Previous work is saved on disk (resilient; if one phase fails, we don't lose earlier context)
+- Debuggable (audit exactly what each phase saw)
+- Enables human inspection between phases if needed
+
+### Internal Agents (Called by Orchestrator)
+
+These agents are **not invoked directly by users**, but run internally when using `/feature-development-orchestrator`:
+
+| Agent | Model | Reads | Writes | Purpose |
+|---|---|---|---|---|
+| Planner | `claude-opus-4-6` | Exploration (if exists) | `02-plan.md` | Create detailed plan with test strategy |
+| Plan Reviewer | `claude-opus-4-6` | `02-plan.md` | `03-review.md` | Validate plan completeness and risk |
+| Implementer | `claude-sonnet-4-6` | `02-plan.md`, `03-review.md` | `04-implementation.md` | Execute approved plan |
+| Test Engineer | `claude-sonnet-4-6` | `02-plan.md`, `04-implementation.md` | `05-tests.md` | Implement test strategy, assess coverage |
+| Commit Agent | `claude-haiku-4-5` | `05-tests.md` | `06-commit.md` | Draft message and stage files |
+
+**Model assignment rationale:**
+- **Opus** for planning and review: Complex reasoning about architecture and edge cases
+- **Sonnet** for implementation and testing: Good code quality, faster execution, reasonable cost balance
+- **Haiku** for commits: Straightforward message formatting, minimal reasoning needed
+
+### Skills (User-Invocable or Used by Orchestrator)
+
+| Skill | Used by | Purpose |
+|---|---|---|
+| `exploration.skill.md` | User via `/explore-codebase` or Orchestrator Phase 1 | Read-only codebase analysis |
+| `local-stack-refresh.skill.md` | User via `/local-stack-refresh` or Orchestrator Phase 7 | Refresh Docker stack after changes |
 
 ## Code Quality Gates
 
