@@ -66,7 +66,7 @@ The paths in the router of the Frontend, which define a one-to-one-mapping of da
 
 1. URLs for pages without upload functionalities are named according to GET-endpoints in a Rest API. E.g. the path to view the framework data for one specific company would be `/companies/:companyID/frameworks/:frameworkName` where `:companyID` and `:frameworkName` must of course have actual valid values.
 2. URLs for pages with upload functionalities (POST-URLs so to speak) just need a prefix `/upload` attached to the respective URL, which a user would visit afterwards to view the data. So to upload framework data for one specific company a user needs to visit `/companies/:companyID/frameworks/:frameworkName/upload`.
-3. **Top-level route paths use concatenated lowercase without hyphens.** Follow the existing convention: `/qualityassurance`, `/companyrequests`, `/requestoverview`, `/datamodel` — not `/quality-assurance` or `/data-model`.
+3. **Top-level route paths use concatenated lowercase without hyphens.** Follow the existing convention: `/qualityassurance`, `/companyrequests`, `/requestoverview`, `/frameworks` — not `/quality-assurance` or `/data-model`.
 
 ### "Framework Data View Page"
 

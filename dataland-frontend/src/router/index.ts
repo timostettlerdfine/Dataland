@@ -40,7 +40,7 @@ const AdminRequestsOverviewLegacy = (): Promise<RouteComponent> =>
 const ViewTeaserCompanyData = (): Promise<RouteComponent> => import('@/components/pages/ViewTeaserCompanyData.vue');
 const ChooseFrameworkForDataUpload = (): Promise<RouteComponent> =>
   import('@/components/pages/ChooseFrameworkForDataUpload.vue');
-const DataModelPage = (): Promise<RouteComponent> => import('@/components/pages/DataModelPage.vue');
+const FrameworksPage = (): Promise<RouteComponent> => import('@/components/pages/FrameworksPage.vue');
 import PlatformRedirect from '@/components/resources/landingPage/PlatformRedirect.vue';
 
 const routes = [
@@ -276,11 +276,20 @@ const routes = [
     },
   },
   {
-    path: '/datamodel',
-    name: 'Data Model',
-    component: DataModelPage,
+    path: '/frameworks',
+    name: 'Frameworks',
+    component: FrameworksPage,
     meta: {
-      initialTabId: 'data-model',
+      initialTabId: 'frameworks',
+      requiresAuthentication: true,
+    },
+  },
+  {
+    path: '/frameworks/:frameworkId',
+    name: 'FrameworkDetail',
+    component: FrameworksPage,
+    meta: {
+      initialTabId: 'frameworks',
       requiresAuthentication: true,
     },
   },

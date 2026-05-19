@@ -13,8 +13,24 @@
           data-row-header="true"
         >
           <span class="table-left-label">{{ cellOrSectionConfig.label }}</span>
+          <router-link
+            v-if="cellOrSectionConfig.explanation && cellOrSectionConfig.dataPointTypeId"
+            :to="{ path: '/frameworks', query: { dataPointTypeId: cellOrSectionConfig.dataPointTypeId } }"
+            class="info-icon-link"
+            data-test="info-icon-link"
+          >
+            <em
+              class="material-icons info-icon"
+              aria-hidden="true"
+              :title="cellOrSectionConfig.label"
+              v-tooltip.top="{
+                value: cellOrSectionConfig.explanation,
+              }"
+              >info</em
+            >
+          </router-link>
           <em
-            v-if="cellOrSectionConfig.explanation"
+            v-else-if="cellOrSectionConfig.explanation"
             class="material-icons info-icon"
             aria-hidden="true"
             :title="cellOrSectionConfig.label"
@@ -276,6 +292,15 @@ function openEditDataPointModal(idx: number, cellOrSectionConfig: MLDTCellConfig
 <style scoped>
 .info-icon {
   cursor: help;
+}
+
+.info-icon-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.info-icon-link .info-icon {
+  cursor: pointer;
 }
 
 .vertical-align-top {
