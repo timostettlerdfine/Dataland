@@ -1,10 +1,16 @@
 <template>
   <div class="framework-schema-tree">
+    <h3>Schema Structure</h3>
+    <IconField class="schema-search-field">
+      <InputIcon class="pi pi-search" />
+      <InputText v-model="filterText" placeholder="Search..." data-test="schema-search-input" />
+    </IconField>
     <Tree
-      v-if="treeNodes.length > 0"
-      :value="treeNodes"
+      v-if="filteredTreeNodes.length > 0"
+      :value="filteredTreeNodes"
       selectionMode="single"
       v-model:selectionKeys="selectedKeys"
+      v-model:expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       data-test="schema-tree"
     />
@@ -18,6 +24,9 @@
 <script setup lang="ts">
 import Tree from 'primevue/tree';
 import Message from 'primevue/message';
+import InputText from 'primevue/inputtext';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 import { computed, ref, watch } from 'vue';
 import type { TreeNode } from 'primevue/treenode';
 
@@ -25,6 +34,7 @@ interface SchemaLeaf {
   id: string;
   ref: string;
   aliasExport?: string;
+  name?: string;
 }
 
 const props = defineProps<{
@@ -36,6 +46,8 @@ const emit = defineEmits<{
 }>();
 
 const selectedKeys = ref<Record<string, boolean>>({});
+const expandedKeys = ref<Record<string, boolean>>({});
+const filterText = ref('');
 const parseError = ref<string | null>(null);
 
 /** Checks if a value is a schema leaf node (has id and ref). */
@@ -51,7 +63,7 @@ function buildTreeNodes(obj: Record<string, unknown>, parentKey: string = ''): T
     if (isLeafNode(value)) {
       nodes.push({
         key: nodeKey,
-        label: value.aliasExport ?? key,
+        label: value.name ?? value.aliasExport ?? key,
         data: { dataPointTypeId: value.id, isLeaf: true },
         icon: 'pi pi-file',
       });
@@ -68,6 +80,36 @@ function buildTreeNodes(obj: Record<string, unknown>, parentKey: string = ''): T
   return nodes;
 }
 
+/** Recursively filters tree nodes to only include those matching the filter text,
+ *  retaining ancestor nodes when any descendant matches. */
+function filterNodes(nodes: TreeNode[], filter: string): TreeNode[] {
+  const lowerFilter = filter.toLowerCase();
+  const result: TreeNode[] = [];
+  for (const node of nodes) {
+    if (node.children && node.children.length > 0) {
+      const filteredChildren = filterNodes(node.children, filter);
+      if (filteredChildren.length > 0) {
+        result.push({ ...node, children: filteredChildren });
+      }
+    } else if ((node.label ?? '').toLowerCase().includes(lowerFilter)) {
+      result.push(node);
+    }
+  }
+  return result;
+}
+
+/** Collects all non-leaf node keys from a tree for expansion. */
+function collectParentKeys(nodes: TreeNode[]): Record<string, boolean> {
+  const keys: Record<string, boolean> = {};
+  for (const node of nodes) {
+    if (node.children && node.children.length > 0) {
+      keys[node.key as string] = true;
+      Object.assign(keys, collectParentKeys(node.children));
+    }
+  }
+  return keys;
+}
+
 const treeNodes = computed<TreeNode[]>(() => {
   if (!props.schema) return [];
   try {
@@ -75,6 +117,20 @@ const treeNodes = computed<TreeNode[]>(() => {
     return buildTreeNodes(parsed);
   } catch {
     return [];
+  }
+});
+
+const filteredTreeNodes = computed<TreeNode[]>(() => {
+  const filter = filterText.value.trim();
+  if (!filter) return treeNodes.value;
+  return filterNodes(treeNodes.value, filter);
+});
+
+watch(filterText, (val) => {
+  if (val.trim()) {
+    expandedKeys.value = collectParentKeys(filteredTreeNodes.value);
+  } else {
+    expandedKeys.value = {};
   }
 });
 
@@ -107,5 +163,9 @@ function onNodeSelect(node: TreeNode): void {
 .framework-schema-tree {
   flex: 1;
   overflow-y: auto;
+}
+
+.schema-search-field {
+  margin-bottom: 0.5rem;
 }
 </style>

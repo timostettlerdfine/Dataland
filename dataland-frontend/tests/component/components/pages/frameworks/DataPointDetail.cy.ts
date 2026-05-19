@@ -14,6 +14,13 @@ const mockDataPointSpec = {
   constraints: ['Must be true or false', 'Cannot be null'],
 };
 
+const mockBaseTypeSpec = {
+  dataPointBaseType: { id: 'boolean', ref: '/specifications/data-point-base-types/boolean' },
+  name: 'Boolean',
+  businessDefinition: 'A true/false value.',
+  usedBy: [],
+};
+
 const keycloak = minimalKeycloakMock({});
 const getKeycloakPromise = (): Promise<Keycloak> => Promise.resolve(keycloak);
 
@@ -55,6 +62,7 @@ describe('DataPointDetail', () => {
 
   it('displays name, business definition, constraints, base type and used-by links', () => {
     cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: mockBaseTypeSpec }).as('getBaseType');
 
     // @ts-ignore
     cy.mountWithPlugins(DataPointDetail, {
@@ -66,6 +74,7 @@ describe('DataPointDetail', () => {
     });
 
     cy.wait('@getDataPoint');
+    cy.wait('@getBaseType');
 
     cy.get('[data-test="data-point-detail"]').should('contain.text', 'Climate Change Mitigation');
     cy.get('[data-test="data-point-detail"]').should(
@@ -83,6 +92,71 @@ describe('DataPointDetail', () => {
     // Used-by framework links
     cy.get('[data-test="data-point-detail"]').find('a[href*="euTaxonomy"]').should('exist');
     cy.get('[data-test="data-point-detail"]').find('a[href*="sfdr"]').should('exist');
+  });
+
+  it('shows labeled ID, NAME and DEFINITION rows with correct values', () => {
+    cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: mockBaseTypeSpec }).as('getBaseType');
+
+    // @ts-ignore
+    cy.mountWithPlugins(DataPointDetail, {
+      keycloak,
+      props: {
+        dataPointTypeId: 'dp-climate',
+        getKeycloakPromise,
+      },
+    });
+
+    cy.wait('@getDataPoint');
+    cy.wait('@getBaseType');
+
+    cy.get('[data-test="detail-id"]').should('contain.text', 'dp-climate');
+    cy.get('[data-test="detail-name"]').should('contain.text', 'Climate Change Mitigation');
+    cy.get('[data-test="detail-definition"]').should(
+      'contain.text',
+      'Activities contributing substantially to climate change mitigation.'
+    );
+  });
+
+  it('shows base type details section on successful base type fetch', () => {
+    cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: mockBaseTypeSpec }).as('getBaseType');
+
+    // @ts-ignore
+    cy.mountWithPlugins(DataPointDetail, {
+      keycloak,
+      props: {
+        dataPointTypeId: 'dp-climate',
+        getKeycloakPromise,
+      },
+    });
+
+    cy.wait('@getDataPoint');
+    cy.wait('@getBaseType');
+
+    cy.get('[data-test="base-type-details"]').should('exist');
+    cy.get('[data-test="base-type-details"]').should('contain.text', 'Boolean');
+    cy.get('[data-test="base-type-details"]').should('contain.text', 'A true/false value.');
+  });
+
+  it('shows an error when the base type fetch fails', () => {
+    cy.intercept('GET', '**/specifications/data-point-types/dp-climate', { body: mockDataPointSpec }).as('getDataPoint');
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { statusCode: 500 }).as('getBaseTypeFail');
+
+    // @ts-ignore
+    cy.mountWithPlugins(DataPointDetail, {
+      keycloak,
+      props: {
+        dataPointTypeId: 'dp-climate',
+        getKeycloakPromise,
+      },
+    });
+
+    cy.wait('@getDataPoint');
+    cy.wait('@getBaseTypeFail');
+
+    cy.get('[data-test="data-point-error"]').should('exist');
+    cy.get('[data-test="base-type-details"]').should('not.exist');
   });
 
   it('shows an error message when the data point API returns an error', () => {
@@ -118,6 +192,7 @@ describe('DataPointDetail', () => {
     cy.intercept('GET', '**/specifications/data-point-types/dp-social', { body: secondDataPointSpec }).as(
       'getSecondDataPoint'
     );
+    cy.intercept('GET', '**/specifications/data-point-base-types/boolean', { body: mockBaseTypeSpec }).as('getBaseType');
 
     // @ts-ignore
     cy.mountWithPlugins(DataPointDetail, {

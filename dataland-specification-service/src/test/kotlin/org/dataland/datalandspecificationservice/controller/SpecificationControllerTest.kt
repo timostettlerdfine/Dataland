@@ -82,6 +82,22 @@ class SpecificationControllerTest(
     }
 
     @Test
+    fun `retrieving a framework specification should return a DTO with name field in schema leaf node`() {
+        val response = specificationController.getFrameworkSpecification("test-framework")
+        assert(response.statusCode.is2xxSuccessful)
+        val schema = objectMapper.readTree(response.body!!.schema)
+        assert(
+            schema
+                .path("test1")
+                .path("test2")
+                .path("test3")
+                .path("name")
+                .textValue() ==
+                "Testing...",
+        )
+    }
+
+    @Test
     fun `returning schema for known base type`() {
         val frameworkSpecificationId = "test-framework"
         val response = specificationController.getResolvedFrameworkSpecification(frameworkSpecificationId)

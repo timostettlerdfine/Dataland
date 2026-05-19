@@ -1,5 +1,6 @@
 <template>
   <div class="framework-list">
+    <h3 class="framework-list-header">Frameworks</h3>
     <Listbox
       v-model="selectedFramework"
       :options="frameworks"
@@ -41,5 +42,9 @@ const selectedFramework = computed({
 <style scoped>
 .framework-list {
   min-width: 220px;
+}
+
+.framework-list-header {
+  margin: 0 0 0.5rem 0;
 }
 </style>

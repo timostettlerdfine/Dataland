@@ -19,26 +19,24 @@
             class="info-icon-link"
             data-test="info-icon-link"
           >
-            <em
-              class="material-icons info-icon"
+            <i
+              class="pi pi-info-circle info-icon"
               aria-hidden="true"
               :title="cellOrSectionConfig.label"
               v-tooltip.top="{
                 value: cellOrSectionConfig.explanation,
               }"
-              >info</em
-            >
+            />
           </router-link>
-          <em
+          <i
             v-else-if="cellOrSectionConfig.explanation"
-            class="material-icons info-icon"
+            class="pi pi-info-circle info-icon"
             aria-hidden="true"
             :title="cellOrSectionConfig.label"
             v-tooltip.top="{
               value: cellOrSectionConfig.explanation,
             }"
-            >info</em
-          >
+          />
         </td>
         <td
           v-for="(sinlgeDataAndMetaInfo, idx) in dataAndMetaInfo"
@@ -292,6 +290,7 @@ function openEditDataPointModal(idx: number, cellOrSectionConfig: MLDTCellConfig
 <style scoped>
 .info-icon {
   cursor: help;
+  color: var(--p-orange-400);
 }
 
 .info-icon-link {

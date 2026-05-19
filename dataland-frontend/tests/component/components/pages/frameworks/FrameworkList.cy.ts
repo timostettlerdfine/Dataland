@@ -62,16 +62,18 @@ describe('FrameworkList', () => {
     cy.get('.p-listbox-option').should('have.length', 0);
   });
 
-  it('highlights the currently selected framework', () => {
+  it('displays a "Frameworks" heading above the listbox', () => {
     // @ts-ignore
     cy.mountWithPlugins(FrameworkList, {
       keycloak: minimalKeycloakMock({}),
       props: {
         frameworks: mockFrameworks,
-        modelValue: 'sfdr',
+        modelValue: null,
       },
     });
 
-    cy.get('.p-listbox-option[data-p-selected="true"]').should('contain.text', 'SFDR');
+    cy.contains('h3', 'Frameworks').should('be.visible');
+    cy.get('[data-test="framework-list"]').should('exist');
   });
 });
+

@@ -265,5 +265,15 @@ export const DatalandPreset = definePreset(Aura, {
         },
       },
     },
+    tree: {
+      colorScheme: {
+        light: {
+          node: {
+            selectedBackground: '{orange.50}',
+            selectedColor: '{orange.400}',
+          },
+        },
+      },
+    },
   },
 });

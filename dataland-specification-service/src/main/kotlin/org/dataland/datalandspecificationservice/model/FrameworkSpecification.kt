@@ -60,6 +60,7 @@ private fun translateSchema(
             idWithRefNode.put("id", idWithRef.id)
             idWithRefNode.put("ref", idWithRef.ref)
             idWithRefNode.put("aliasExport", aliasExport)
+            idWithRefNode.put("name", dataPointSpec.name)
 
             schema.set<ObjectNode>(key, idWithRefNode)
         }
