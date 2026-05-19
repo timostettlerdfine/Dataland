@@ -18,7 +18,14 @@ For single-phase work (e.g. "just write tests" or "just commit"), use the indivi
 
 ## Phases
 
-Work through each phase in order. Each phase produces an artifact used by the next.
+Work through each phase **in strict order**. Each phase produces an artifact used by the next.
+
+**Critical enforcement rules:**
+- **Never skip phases** — execute them in sequence: Explore → Plan → Implement → Test → Commit → (optional) Refresh
+- **Enforce approval gates** — pause and wait for explicit user confirmation at each marked gate before proceeding
+- **No silent failures** — if tests fail, loop back to Implement rather than moving forward
+- **Display artifacts** — always show the output report/plan/message to the user before requesting approval
+- **Act on user feedback** — if a user requests changes at a gate, iterate within that phase until approval is granted
 
 ---
 
@@ -30,7 +37,7 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 
 1. **Feature-specific report** at `.github/artifacts/<slug>/01-exploration.md` — if found, read it, display a summary, and tell the user: *"Found an existing exploration report. Using it for planning. Run `/explore-codebase` again if you want to refresh it."* Skip to Phase 2.
 2. **General report** at `.github/artifacts/general-codebase-explore/01-exploration.md` — if found, read it, display a summary, and tell the user: *"No feature-specific exploration found. Using the general codebase exploration. Run `/explore-codebase <topic>` to create a more targeted report."* Skip to Phase 2.
-3. **No report found** — invoke the Codebase Explorer subagent with the change description as input. The subagent will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
+3. **No report found** — invoke the Codebase Explorer subagent with the change description as input. The subagent will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. **Then pause and ask the user:** *"Does this cover all relevant areas? Anything to add before planning?"*  **Do NOT proceed to Phase 2 until the user confirms.**
 
 **If any markdown report is found (cases 1 or 2), no further exploration is performed — proceed directly to Phase 2.**
 
@@ -52,15 +59,17 @@ Produce: **Implementation Plan** (modules, file list, ordered steps, test plan, 
 
 The reviewer will validate the plan for completeness, flag missing edge cases, constraint violations, and risks. It produces a **Review Report** written to `.github/artifacts/<slug>/03-review.md`.
 
-Pause and show the full Implementation Plan together with the Review Report. Ask the user: *"Do you approve this plan? Any changes before implementation starts?"*
+**APPROVAL GATE — Stop here.** Show the full Implementation Plan together with the Review Report. Ask the user: *"Do you approve this plan? Any changes before implementation starts?"*
 
-Do **not** proceed to Phase 3 without explicit approval.
+**Do NOT proceed to Phase 3 without explicit user approval.** If the user requests changes, iterate with the Planner until approval is given.
 
 ---
 
 ### Phase 3 — Implement
 
 **Goal**: Execute the approved plan.
+
+**Only proceed if Phase 2 approval has been explicitly granted.**
 
 **Invoke the implementer subagent** with the approved Implementation Plan.
 
@@ -71,13 +80,15 @@ The implementer will:
 
 Produce: **Implementation Report** (steps completed, deviations if any)
 
-If deviations occurred, present them and confirm with the user before continuing.
+**If deviations occurred:** Present them and pause. Ask the user: *"Do you approve these deviations, or should we adjust the implementation?"* Confirm with the user before continuing to Phase 4.
 
 ---
 
 ### Phase 4 — Test
 
 **Goal**: Assess coverage, then create/amend tests and run them.
+
+**Only proceed after Phase 3 implementation is complete.**
 
 **Invoke the test-engineer subagent** with:
 - The list of changed production files from Phase 3
@@ -88,17 +99,19 @@ The test engineer will first produce a **Coverage Assessment**:
 - For existing test files: which test cases cover the changed code, and which are now stale/missing?
 - Verdict per file: `NEW` (no test file exists), `AMEND` (test file exists but needs updates), or `COVERED` (existing tests are sufficient)
 
-Present the Coverage Assessment. Then proceed to create/amend/run as needed.
+**Pause and show the Coverage Assessment to the user.** Ask: *"Should we proceed with test creation/amendment as planned?"* Wait for approval before continuing.
 
 Produce: **Test Report** (coverage assessment + pass/fail results)
 
-If tests reveal a production bug, loop back to Phase 3 with a targeted fix. Do **not** skip or suppress failing tests.
+**If tests fail:** Do NOT proceed to Phase 5. Loop back to Phase 3 with a targeted fix. Explain the failure to the user and ask: *"Should I fix the production code and re-run tests?"* Do NOT skip or suppress failing tests.
 
 ---
 
 ### Phase 5 — Commit
 
 **Goal**: Stage and commit the changes with a well-formed commit message.
+
+**Only proceed if all tests from Phase 4 pass.**
 
 **Invoke the commit-agent subagent**.
 
@@ -108,20 +121,32 @@ The commit agent will:
 3. **Show the draft and file list — pause for user approval**
 4. Upon approval: stage files and commit
 
+**APPROVAL GATE — Stop here.** Show the commit message and list of staged files. Ask: *"Do you approve this commit?"*
+
+**Do NOT commit without explicit user approval.** If the user requests message changes, iterate with the Commit Agent until approval is given.
+
 Produce: **Commit confirmation** (hash + summary)
 
 ---
 
-### Phase 6 — Local Stack Refresh
+### Phase 6 — Local Stack Refresh *(optional)*
 
 **Goal**: Apply the committed changes to the running local development stack.
+
+**Only proceed if the user requests local testing.**
 
 **Invoke the local-stack-refresh skill** with the list of changed modules.
 
 The skill will:
 1. Check whether a **full reset** is needed (Flyway migration or Keycloak changes) or a plain restart suffices
-2. **Show the proposed command and — if full reset — warn that all local data will be lost. Pause for user approval.**
-3. Upon approval — Restart: `./manageLocalStack.sh --stop --start --simple` or Full reset: `./manageLocalStack.sh --reset --simple`
+2. **Show the proposed command and — if full reset — warn that all local data will be lost.**
+
+**APPROVAL GATE — Stop here.** Ask: *"Do you want to refresh the local stack? (This will restart/reset your Dataland environment.)"*
+
+**Do NOT execute the stack refresh without explicit user approval.**
+
+Upon approval:
+3. Execute: Restart: `./manageLocalStack.sh --stop --start --simple` or Full reset: `./manageLocalStack.sh --reset --simple`
 4. Verify the stack is healthy via the actuator endpoint
 
 Produce: **Stack status** (healthy / errors to investigate)

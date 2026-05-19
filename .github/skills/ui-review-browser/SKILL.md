@@ -63,6 +63,9 @@ Once user selects, navigate to that tab and visually inspect for:
 - Empty states not handled gracefully
 - Loading states missing
 
+**Comparison with other tabs:**
+- Inconsistencies in design patterns across different pages (e.g., one page uses proper spacing and another doesn't)
+
 ### Step 4 — Take Screenshots
 
 Capture the current state of the tab/page using the browser screenshot tool.
