@@ -6,6 +6,7 @@ description: |
 
 type: agent
 tools:[read, search, todo, execute, edit]]
+model: Claude Opus 4.6 (copilot)
 ---
 
 ## Purpose
