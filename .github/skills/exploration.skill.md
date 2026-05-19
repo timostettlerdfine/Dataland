@@ -7,11 +7,7 @@ description: |
 
 type: skill
 applyTo: null
-tools:
-  read: true
-  search: true
-  edit: false
-  execute: false
+tools: [read, search, edit]
 ---
 
 ## Purpose
@@ -47,14 +43,12 @@ User provides a query or area of interest:
    - Flag constraints or special requirements (OTC, migrations, Keycloak integration)
 
 4. **Produce exploration report**
-   - Write to: `.github/artifacts/<query-slug>/exploration.md`
-   - Include:
-     - Module/component summary
-     - Key files and their responsibilities
-     - Architecture diagram (textual or ASCII)
-     - Identified constraints
-     - Relevant existing patterns
-     - Implementation entry points
+   - Structure the report using the Output Format below
+
+5. **Save the report to disk** *(mandatory — always do this)*
+   - Derive a slug from the query: lowercase, hyphens, e.g. `qa-service-approval-flow`
+   - Write to: `.github/artifacts/<query-slug>/01-exploration.md`
+   - This file is consumed by downstream agents (`/plan-changes`, `/feature-workflow`)
 
 ### Output Format
 
