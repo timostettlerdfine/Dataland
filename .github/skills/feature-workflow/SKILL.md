@@ -22,19 +22,14 @@ Work through each phase in order. Each phase produces an artifact used by the ne
 
 ---
 
-### Phase 1 — Explore
+### Phase 1 — Explore *(optional)*
 
 **Goal**: Understand the relevant parts of the codebase before planning anything.
 
-**Invoke the codebase-explorer subagent** with the change description as input. Ask it to:
-- Identify all modules involved
-- List key files (controllers, services, data models, tests)
-- Summarize architecture and data flow in the relevant area
-- Flag constraints (DB migrations, generated code, breaking changes)
+**First, check whether `.github/artifacts/<slug>/01-exploration.md` already exists.**
 
-Produce: **Exploration Report**
-
-Pause and show the Exploration Report. Ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
+- **If it exists**: Read it, display a summary, and tell the user: *"Found an existing exploration report at `.github/artifacts/<slug>/01-exploration.md`. Using it for planning. Run `/explore-codebase` again if you want to refresh it."* Skip to Phase 2.
+- **If it does not exist**: Invoke `/explore-codebase` with the change description as input. The prompt will write the report to `.github/artifacts/<slug>/01-exploration.md` and display it in chat. Then ask the user: *"Does this cover all relevant areas? Anything to add before planning?"*
 
 ---
 
@@ -44,7 +39,7 @@ Pause and show the Exploration Report. Ask the user: *"Does this cover all relev
 
 **Invoke the planner subagent** with:
 - The original change request
-- The Exploration Report from Phase 1
+- The Exploration Report from `.github/artifacts/<slug>/01-exploration.md`
 
 Produce: **Implementation Plan** (modules, file list, ordered steps, test plan, risks)
 

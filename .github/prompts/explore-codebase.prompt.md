@@ -22,3 +22,12 @@ Explore the Dataland codebase to produce a structured **Exploration Report** for
 5. **Suggested implementation entry points**: Files most likely to be touched.
 
 Be thorough. Read actual source files, don't guess.
+
+## Output
+
+After producing the report:
+
+1. Derive a **slug** from the topic: lowercase, replace spaces and special characters with hyphens, truncate to 50 characters (e.g. `"QA approval flow"` → `qa-approval-flow`).
+2. Write the complete Exploration Report to `.github/artifacts/<slug>/01-exploration.md` (create the directory if needed).
+3. Display the report in chat.
+4. Tell the user the artifact was saved at `.github/artifacts/<slug>/01-exploration.md`.
