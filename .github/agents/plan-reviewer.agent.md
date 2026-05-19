@@ -5,13 +5,7 @@ description: |
   requirements. Acts as a gate between planning and implementation. Uses Opus model for deep analysis.
 
 type: agent
-tools:
-  read: true
-  search: true
-  edit: false
-  execute: false
-  todo: true
-model: claude-opus-4-6
+tools:[read, search, todo, execute, edit]]
 ---
 
 ## Purpose
